@@ -4,9 +4,12 @@ const initMqtt = require("./clients");
 var C = xbee_api.constants;
 //var storage = require("./storage")
 require('dotenv').config()
+<<<<<<< HEAD
 initMqtt()
+=======
 
 class Player {
+>>>>>>> origin/Score
 
   remote64;
   hasAlreadyAnswer = false
@@ -19,6 +22,7 @@ class Player {
   }
 
   addScore(){
+    console.log("ici")
     let diode = ""
     if(this.score === 2){
       //finish
@@ -33,12 +37,12 @@ class Player {
           command: diode,
           commandParameter: [5],
         };
-
+        
         xbeeAPI.builder.write(frame_obj);
       }
-
-
-
+      
+      
+    
     }
   }
 
@@ -100,7 +104,7 @@ xbeeAPI.parser.on("data", function (frame) {
 
   if (C.FRAME_TYPE.NODE_IDENTIFICATION === frame.type) {
     // let dataReceived = String.fromCharCode.apply(null, frame.nodeIdentifier);
-
+   
     let newPlayer = new Player(frame.remote64,frame.nodeIdentifier)
     playersList.push(newPlayer);
     console.log("NODE_IDENTIFICATION");
@@ -147,16 +151,14 @@ xbeeAPI.parser.on("data", function (frame) {
 
   } else if (C.FRAME_TYPE.REMOTE_COMMAND_RESPONSE === frame.type) {
     let dataReceived = String.fromCharCode.apply(null, frame.commandData)
-
+    
     console.log("REMOTE_COMMAND_RESPONSE", dataReceived)
   } else {
-
+    
     console.debug(frame);
-
+    
     let dataReceived = String.fromCharCode.apply(null, frame.commandData)
     console.log(dataReceived);
   }
 
 });
-
-export { playersList }

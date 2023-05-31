@@ -2,6 +2,7 @@ const clients = require('mqtt')
 const client = clients.connect('mqtt://test.mosquitto.org')
 require('dotenv').config()
 const TOPIC = process.env.TOPIC;
+import {playersList} from './server'
 
 // SERVER
 function initMqtt() {
@@ -26,7 +27,10 @@ client.on('message', function (topic, message) {
 
     // Good Answer
     case `${TOPIC}/GoodAnswer`:
-      // Good ANSWER
+      const found = playersList.find(player => player.color === message)
+      if(found !== undefined){
+        found.addScore();
+      }
       break;
 
       case `${TOPIC}/BadAnswer`:
