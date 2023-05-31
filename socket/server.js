@@ -1,9 +1,10 @@
 var SerialPort = require('serialport');
 var xbee_api = require('xbee-api');
+const initMqtt = require("./clients");
 var C = xbee_api.constants;
 //var storage = require("./storage")
 require('dotenv').config()
-
+initMqtt()
 
 const SERIAL_PORT = process.env.SERIAL_PORT;
 
