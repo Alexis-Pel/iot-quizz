@@ -27,14 +27,16 @@ client.on('message', function (topic, message) {
 
     // Good Answer
     case `${TOPIC}/GoodAnswer`:
+      // TEST IF IT AFFECT THE OG ARRAY
       const found = playersList.find(player => player.color === message)
       if(found !== undefined){
         found.addScore();
       }
       break;
 
-      case `${TOPIC}/BadAnswer`:
-      // Bad ANSWER
+      // Pass the question
+      case `${TOPIC}/pass`:
+      // reset the hasAlreadyAnswered
       break;
   }
 })
@@ -43,15 +45,22 @@ client.on('message', function (topic, message) {
 // POP-UP QUESTION A -> C
 // JOUEUR A REJOINT A -> C
 
-// REPONSE BONNE C -> A
-// REPONSE FAUSSE C -> A
-// New Game C -> A
 
 function send_winner(winner){
     client.publish(`${TOPIC}/winner`, winner)
 }
+function pop_up(player, id){
+  client.publish(`${TOPIC}/pop_up`, `${player}|${id}`)
+}
 
-module.exports = initMqtt
+function player_join(player){
+    client.publish(`${TOPIC}/player`, player)
+}
+
+module.exports.initMqtt = initMqtt
+module.exports.send_winner = send_winner
+module.exports.pop_up = pop_up
+module.exports.player_join = player_join
 
 /// CLIENT
 function clientMQTT() {
@@ -66,6 +75,11 @@ function clientMQTT() {
 client.on('message', function (topic, message) {
   // message is Buffer
   console.log(topic, message.toString())
-  //client.end()
+  switch (message.toString()){
+    // New game
+    case `${TOPIC}/NewGame`:
+      // START A NEW GAME
+      break;
+  }
 })
 }
