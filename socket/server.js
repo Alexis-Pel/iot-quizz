@@ -4,9 +4,47 @@ var C = xbee_api.constants;
 //var storage = require("./storage")
 require('dotenv').config()
 
+class Player {
+
+  remote64;
+  hasAlreadyAnswer = false
+  score = 1;
+  color;
+
+  constructor(remote64,color){
+      this.remote64 = remote64;
+      this.color = color;
+  }
+
+  addScore(){
+    console.log("ici")
+    let diode = ""
+    if(this.score === 2){
+      //finish
+    }else {
+      this.score++
+      for(let i = 1; i<= this.score;i++){
+        diode = `D${i}`
+        console.log(diode)
+        let frame_obj = { // AT Request to be sent
+          type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
+          destination64: this.remote64,
+          command: diode,
+          commandParameter: [5],
+        };
+        
+        xbeeAPI.builder.write(frame_obj);
+      }
+      
+      
+    
+    }
+  }
+
+}
 
 const SERIAL_PORT = process.env.SERIAL_PORT;
-
+const playersList = []
 var xbeeAPI = new xbee_api.XBeeAPI({
   api_mode: 2
 });
@@ -61,13 +99,29 @@ xbeeAPI.parser.on("data", function (frame) {
 
   if (C.FRAME_TYPE.NODE_IDENTIFICATION === frame.type) {
     // let dataReceived = String.fromCharCode.apply(null, frame.nodeIdentifier);
+   
+    let newPlayer = new Player(frame.remote64,frame.nodeIdentifier)
+    playersList.push(newPlayer);
     console.log("NODE_IDENTIFICATION");
+    console.log(playersList);
+    //playersList[0].addScore();
     //storage.registerSensor(frame.remote64)
 
   } else if (C.FRAME_TYPE.ZIGBEE_IO_DATA_SAMPLE_RX === frame.type) {
 
     console.log("ZIGBEE_IO_DATA_SAMPLE_RX")
-    console.log(frame.analogSamples.AD1)
+    console.log(frame.remote64)
+
+  frame_obj = { // AT Request to be sent
+      type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
+      destination64: frame.remote64,
+      command: "D0",
+      commandParameter: [5],
+    };
+    xbeeAPI.builder.write(frame_obj);
+
+
+
 
     // let parameter;
     // if(ledOn === true){
@@ -92,9 +146,12 @@ xbeeAPI.parser.on("data", function (frame) {
 
   } else if (C.FRAME_TYPE.REMOTE_COMMAND_RESPONSE === frame.type) {
     let dataReceived = String.fromCharCode.apply(null, frame.commandData)
+    
     console.log("REMOTE_COMMAND_RESPONSE", dataReceived)
   } else {
+    
     console.debug(frame);
+    
     let dataReceived = String.fromCharCode.apply(null, frame.commandData)
     console.log(dataReceived);
   }
