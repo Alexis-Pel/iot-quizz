@@ -45,8 +45,7 @@ serialport.on("open", function () {
 
 // storage.listSensors().then((sensors) => sensors.forEach((sensor) => console.log(sensor.data())))
 
-var ledOn = false;
-
+//var ledOn = false;
 xbeeAPI.parser.on("data", function (frame) {
 
   //on new device is joined, register it
@@ -70,24 +69,24 @@ xbeeAPI.parser.on("data", function (frame) {
     console.log("ZIGBEE_IO_DATA_SAMPLE_RX")
     console.log(frame.analogSamples.AD1)
 
-    let parameter;
-    if(ledOn === true){
-      parameter = "4";
-    }
-    else{
-      parameter = "5";
-    }
-    ledOn = !ledOn;
+    // let parameter;
+    // if(ledOn === true){
+    //   parameter = "4";
+    // }
+    // else{
+    //   parameter = "5";
+    // }
+    // ledOn = !ledOn;
 
     // Action sur la led
-    var frame_obj = { // AT Request to be sent
-      type: C.FRAME_TYPE.AT_COMMAND,
-      command: "D0",
-      commandParameter: [parameter],
-  };
+  //  var frame_obj = { // AT Request to be sent
+  //    type: C.FRAME_TYPE.AT_COMMAND,
+  //    command: "D0",
+  //    commandParameter: [parameter],
+  //};
 
 
-  xbeeAPI.builder.write(frame_obj);
+  //xbeeAPI.builder.write(frame_obj);
 
     //storage.registerSample(frame.remote64,frame.analogSamples.AD0 )
 
