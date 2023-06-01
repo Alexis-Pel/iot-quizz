@@ -29,6 +29,7 @@ const root = createRoot(
 function MQTTComponent() {
   let [list, setList] = useState([])
   let [game, setGame] = useState(false)
+
   useEffect(() => {
     // Gérer les messages MQTT entrants
     client.on("message", (topic, message) => {
@@ -68,8 +69,7 @@ function MQTTComponent() {
             console.log(
               "SHOW POP UP SCREEN FOR PLAYER: " + player + " WITH ID: " + id
             );
-            console.log('RENDER')
-            root.render(pop_ip_ui(player))
+            root.render(pop_ip_ui(player, id))
             break;
 
           case `${TOPIC}/winner`:
@@ -93,7 +93,13 @@ function MQTTComponent() {
   }, [])
 
   if (game === false) {
-    return (<div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+    return lobby(list, setGame)
+  } else {
+    return game_page()
+  }
+}
+function lobby(list, setGame){
+  return (<div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
       <h1>Quizzoeur</h1>
       <div style={{height: '400px', overflowY: 'scroll',}}>
         {list}
@@ -103,13 +109,15 @@ function MQTTComponent() {
         setGame(true)
       }}>Lancer le Quizzoeur !
       </button>
+      <div id="test"></div>
     </div>)
-  } else {
-    return <div></div>
-  }
 }
 
-function pop_ip_ui(playerName) {
+function game_page(){
+  return (<div></div>)
+}
+
+function pop_ip_ui(playerName, id) {
   return (<div className="flou">
     <div style={{
       width: "390px",
@@ -123,8 +131,11 @@ function pop_ip_ui(playerName) {
     }}>
       <div className="playerName"><p>{playerName} a buzzé</p></div>
       <div style={{width: '90%', display: 'flex', justifyContent: 'space-between'}}>
-        <div className="wrong"></div>
-        <div className="right"></div>
+        <div className="wrong" onClick={() => {root.render(game_page())}}><p>Incorrect</p></div>
+        <div className="right" onClick={() => {
+          goodAnswer(id)
+          root.render(game_page())
+        }}><p>Correct</p></div>
       </div>
     </div>
   </div>)

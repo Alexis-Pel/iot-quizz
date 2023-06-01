@@ -219,11 +219,12 @@ height: 64px;
 background: linear-gradient(91.62deg, #C50401 0%, #E56B01 100%);
 border: 3px solid #FFFFFF;
 border-radius: 20px;
+    cursor: pointer;
 }
 .right{
 width: 120px;
 height: 64px;
-
+cursor: pointer;
 background: #48C14D;
 border: 3px solid #FFFFFF;
 border-radius: 20px;
