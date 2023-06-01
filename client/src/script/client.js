@@ -1,128 +1,109 @@
 //import {useEffect, useState} from 'react';
-import React, { Component } from 'react';
-import mqtt from 'mqtt';
-const TOPIC = process.env.TOPIC;
+import React, { Component, useEffect } from "react";
+import { useState } from "react";
+import mqtt from "precompiled-mqtt";
+//dotenv.config();
+const TOPIC = "3c063038e425";
+const client = mqtt.connect("mqtt://test.mosquitto.org:8080");
 
 
-class MQTTComponent extends Component {
-    client;
-  componentDidMount() {
-    // Créer une instance MQTT et se connecter au broker MQTT
-    this.client = mqtt.connect('mqtt://test.mosquitto.org');
+  // Créer une instance MQTT et se connecter au broker MQTT
+  // Gérer les événements de connexion et d'erreur
+  client.on("connect", () => {
+    console.log("Connecté au broker MQTT");
+    // Souscrire à des sujets MQTT
+    client.subscribe(`${TOPIC}/+`);
+    console.log('Je suis la')
+    client.publish(`${TOPIC}/player`, 'VERT');
+  });
 
-    // Gérer les événements de connexion et d'erreur
-    this.client.on('connect', () => {
-      console.log('Connecté au broker MQTT');
-      // Souscrire à des sujets MQTT
-      this.client.subscribe(`${TOPIC}/+`);
+  client.on("error", (error) => {
+    console.log("Erreur de connexion MQTT :", error);
+  });
 
-    });
+function MQTTComponent() {
+  const [list, setList] = useState([]);
 
-    this.client.on('error', (error) => {
-      console.log('Erreur de connexion MQTT :', error);
-    });
-
-    // Gérer les messages MQTT entrants
-    this.client.on('message', (topic, message) => {
-      console.log('Message MQTT reçu :', topic, message.toString());
-      // Traitez le message MQTT reçu ici
-      switch (topic){
-        // Player joined
-        case `${TOPIC}/player`:
-          console.log(`${message.toString()} joined`)
-          break;
-    
-          // Pop Up
-        case `${TOPIC}/pop_up`:
-          const message_array = message.toString().split('|')
-          const player = message_array[0]
-          const id = message_array[1]
-          console.log('SHOW POP UP SCREEN FOR PLAYER: ' + player + ' WITH ID: ' + id)
-          break;
-    
-        case `${TOPIC}/winner`:
-          console.log('WINNER IS PLAYER: ' + message.toString())
+  useEffect(()=>{
+ // Gérer les messages MQTT entrants
+ client.on("message", (topic, message) => {
+  console.log("Message MQTT reçu :", topic, message.toString());
+  // Traitez le message MQTT reçu ici
+  console.log(topic)
+  switch (topic) {
+    // Player joined
+    case `${TOPIC}/player`:
+      let a = [...list]
+      let b = <li>
+      <div className="Bleu">
+        <div className="IconPlayerBleu">P</div>
+        <div className="NamePlayer">Nouveau Joueur</div>
+        <div className="style-bullet">•</div>
+        <div className="ColorPlayer">{message.toString()}</div>
+      </div>
+    </li>
+      const found = a.filter(value => value === b)
+      console.log(list)
+      if(found.length === 0){
+      console.log(`${message.toString()} joined`);
+        a.push(b);
+        setList(a);
+        console.log(a)
       }
-    });
+      break;
+
+    // Pop Up
+    case `${TOPIC}/pop_up`:
+      const message_array = message.toString().split("|");
+      const player = message_array[0];
+      const id = message_array[1];
+      console.log(
+        "SHOW POP UP SCREEN FOR PLAYER: " + player + " WITH ID: " + id
+      );
+      break;
+
+    case `${TOPIC}/winner`:
+      console.log("WINNER IS PLAYER: " + message.toString());
+      break;
+
+    default:
+      //console.log('')
+      break;
   }
-
-  componentWillUnmount() {
-    // Déconnectez-vous du broker MQTT lors de la suppression du composant
-    if (this.client) {
-      this.client.end();
-    }
+  return ()=>{
+          client.unsubscribe(topic, error => {
+        if (error) {
+          console.log('Unsubscribe error', error)
+          return
+        }
+      });
   }
+});
 
-  render() {
-    return (
+  },[])
+
+
+   
+
+  return (
+    <div>
+      <h1>Quizzoeur</h1>
       <div>
-              <h1>Quizzoeur</h1>
-      <div>
-        <div className='Bleu'>
-          <div className='IconPlayerBleu'>
-            P
-          </div>
-          <div className='NamePlayer'>
-            Nouveau Joueur
-          </div>
-          <div className='style-bullet'>
-            •
-          </div>
-          <div className='ColorPlayer'>
-            Bleu
-          </div>
-        </div> 
-
-
-        <div className='Vert'>
-          <div className='IconPlayerVert'>
-            P
-          </div>
-          <div className='NamePlayer'>
-            Nouveau Joueur
-          </div>
-          <div className='style-bullet'>
-            •
-          </div>
-          <div className='ColorPlayer'>
-            Vert
-          </div>
-        </div>
-
-
-        <div className='Jaune'>
-          <div className='IconPlayerJaune'>
-            P
-          </div>
-          <div className='NamePlayer'>
-            Nouveau Joueur
-          </div>
-          <div className='style-bullet'>
-            •
-          </div>
-          <div className='ColorPlayer'>
-            Jaune
-          </div>
-        </div>
+        {list}
       </div>
       <button>Lancer le Quizzoeur !</button>
-      </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default MQTTComponent;
-
 
 // const clients = require('mqtt')
 
 // require('dotenv').config()
 
-
-
-
 // function MQTT() {
-//     const [client, setClient] = useState(null); 
+//     const [client, setClient] = useState(null);
 //     setClient(clients.connect('mqtt://test.mosquitto.org'));
 //     useEffect(() => {
 //         if (client) {
@@ -143,7 +124,7 @@ export default MQTTComponent;
 //                 case `${TOPIC}/player`:
 //                   console.log(`${message.toString()} joined`)
 //                   break;
-            
+
 //                   // Pop Up
 //                 case `${TOPIC}/pop_up`:
 //                   const message_array = message.toString().split('|')
@@ -151,7 +132,7 @@ export default MQTTComponent;
 //                   const id = message_array[1]
 //                   console.log('SHOW POP UP SCREEN FOR PLAYER: ' + player + ' WITH ID: ' + id)
 //                   break;
-            
+
 //                 case `${TOPIC}/winner`:
 //                   console.log('WINNER IS PLAYER: ' + message.toString())
 //               }
@@ -159,8 +140,6 @@ export default MQTTComponent;
 //         }
 //       }, [client]);
 // }
-  
-
 
 //   const mqttSub = (subscription) => {
 //     if (client) {
@@ -175,8 +154,6 @@ export default MQTTComponent;
 //     }
 //   };
 
-
-
 //   const mqttUnSub = (subscription) => {
 //     if (client) {
 //       const { topic } = subscription;
@@ -190,7 +167,6 @@ export default MQTTComponent;
 //     }
 //   };
 
-
 //   const mqttPublish = (context) => {
 //     if (client) {
 //       const { topic, qos, payload } = context;
@@ -202,7 +178,6 @@ export default MQTTComponent;
 //     }
 //   }
 
-  
 //   const mqttDisconnect = () => {
 //     if (client) {
 //       client.end(() => {
@@ -210,14 +185,6 @@ export default MQTTComponent;
 //       });
 //     }
 //   }
-  
-
-
-
-
-
-
-
 
 /// CLIENT
 // function clientMQTT() {
@@ -228,7 +195,7 @@ export default MQTTComponent;
 //       }
 //     })
 //   })
-  
+
 //   client.on('message', function (topic, message) {
 //     // SWITCH
 //     switch (topic){
@@ -236,7 +203,7 @@ export default MQTTComponent;
 //         case `${TOPIC}/player`:
 //           console.log(`${message.toString()} joined`)
 //           break;
-    
+
 //           // Pop Up
 //         case `${TOPIC}/pop_up`:
 //           const message_array = message.toString().split('|')
@@ -244,21 +211,21 @@ export default MQTTComponent;
 //           const id = message_array[1]
 //           console.log('SHOW POP UP SCREEN FOR PLAYER: ' + player + ' WITH ID: ' + id)
 //           break;
-    
+
 //         case `${TOPIC}/winner`:
 //           console.log('WINNER IS PLAYER: ' + message.toString())
 //       }
 //   })
 //   }
-  
+
 //   function new_game(){
 //       client.publish(`${TOPIC}/newGame`, 'new Game')
 //   }
-  
+
 //   function goodAnswer(id){
 //     client.publish(`${TOPIC}/GoodAnswer`, id)
 //   }
-  
+
 //   function pass(){
 //       client.publish(`${TOPIC}/pass`, 'PASS')
 //   }
