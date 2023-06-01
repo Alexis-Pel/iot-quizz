@@ -26,7 +26,7 @@ let message_cache = null
 
 function MQTTComponent() {
   let [list, setList] = useState([])
-
+  let [game, setGame] = useState(false)
   useEffect(() => {
     // Gérer les messages MQTT entrants
     client.on("message", (topic, message) => {
@@ -37,22 +37,24 @@ function MQTTComponent() {
         switch (topic) {
           // Player joined
           case `${TOPIC}/player`:
-            let b = <li>
-              <div className="Bleu">
-                <div className="IconPlayerBleu">P</div>
-                <div className="NamePlayer">Nouveau Joueur</div>
-                <div className="style-bullet">•</div>
-                <div className="ColorPlayer">{message.toString()}</div>
-              </div>
-            </li>
-                          console.log(list)
+            if (!game) {
+              let b = <li>
+                <div className="Bleu">
+                  <div className="IconPlayerBleu">P</div>
+                  <div className="NamePlayer">Nouveau Joueur</div>
+                  <div className="style-bullet">•</div>
+                  <div className="ColorPlayer">{message.toString()}</div>
+                </div>
+              </li>
+              console.log(list)
 
-            const found = listNames.filter(value => value === message.toString())
-            if (found.length === 0) {
-              console.log(`${message.toString()} joined`);
-              listNames.push(message.toString())
-              list.push(b)
-              setList([...list])
+              const found = listNames.filter(value => value === message.toString())
+              if (found.length === 0) {
+                console.log(`${message.toString()} joined`);
+                listNames.push(message.toString())
+                list.push(b)
+                setList([...list])
+              }
             }
             break;
 
@@ -86,13 +88,18 @@ function MQTTComponent() {
 
   }, [])
 
-  return (<div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-    <h1>Quizzoeur</h1>
-    <div style={{height: '400px', overflowY: 'scroll', }}>
-      {list}
-    </div>
-    <button>Lancer le Quizzoeur !</button>
-  </div>)
+  if (game === false) {
+    return (<div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+      <h1>Quizzoeur</h1>
+      <div style={{height: '400px', overflowY: 'scroll',}}>
+        {list}
+      </div>
+      <button onClick={() => setGame(true)}>Lancer le Quizzoeur !</button>
+    </div>)
+  }
+  else{
+    return <div></div>
+  }
 }
 
 export default MQTTComponent;
