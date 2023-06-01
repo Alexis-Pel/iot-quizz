@@ -10,11 +10,9 @@ const client = mqtt.connect("mqtt://test.mosquitto.org:8080");
 // Créer une instance MQTT et se connecter au broker MQTT
 // Gérer les événements de connexion et d'erreur
 client.on("connect", () => {
-  console.log("Connecté au broker MQTT");
   // Souscrire à des sujets MQTT
   client.subscribe(`${TOPIC}/+`);
-  console.log('Je suis la')
-  client.publish(`${TOPIC}/player`, 'VERT');
+  //client.publish(`${TOPIC}/player`, 'VERT');
 });
 
 client.on("error", (error) => {
@@ -94,13 +92,25 @@ function MQTTComponent() {
       <div style={{height: '400px', overflowY: 'scroll',}}>
         {list}
       </div>
-      <button onClick={() => setGame(true)}>Lancer le Quizzoeur !</button>
+      <button onClick={() => {new_game(); setGame(true)}}>Lancer le Quizzoeur !</button>
     </div>)
   }
   else{
     return <div></div>
   }
 }
+
+  function new_game(){
+      client.publish(`${TOPIC}/newGame`, 'new Game')
+  }
+
+  function goodAnswer(id){
+    client.publish(`${TOPIC}/GoodAnswer`, id)
+  }
+
+  function pass(){
+      client.publish(`${TOPIC}/pass`, 'PASS')
+  }
 
 export default MQTTComponent;
 
@@ -224,14 +234,3 @@ export default MQTTComponent;
 //   })
 //   }
 
-//   function new_game(){
-//       client.publish(`${TOPIC}/newGame`, 'new Game')
-//   }
-
-//   function goodAnswer(id){
-//     client.publish(`${TOPIC}/GoodAnswer`, id)
-//   }
-
-//   function pass(){
-//       client.publish(`${TOPIC}/pass`, 'PASS')
-//   }
