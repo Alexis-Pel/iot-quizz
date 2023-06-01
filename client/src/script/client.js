@@ -2,6 +2,7 @@
 import React, {Component, useEffect} from "react";
 import {useState} from "react";
 import mqtt from "precompiled-mqtt";
+import {createRoot, render} from "react-dom";
 //dotenv.config();
 const TOPIC = "3c063038e425";
 const client = mqtt.connect("mqtt://test.mosquitto.org:8080");
@@ -12,7 +13,7 @@ const client = mqtt.connect("mqtt://test.mosquitto.org:8080");
 client.on("connect", () => {
   // Souscrire à des sujets MQTT
   client.subscribe(`${TOPIC}/+`);
-  //client.publish(`${TOPIC}/player`, 'VERT');
+  client.publish(`${TOPIC}/pop_up`, 'VERT|aa');
 });
 
 client.on("error", (error) => {
@@ -21,6 +22,9 @@ client.on("error", (error) => {
 
 let listNames = []
 let message_cache = null
+const root = createRoot(
+  document.getElementById('root')
+);
 
 function MQTTComponent() {
   let [list, setList] = useState([])
@@ -64,6 +68,8 @@ function MQTTComponent() {
             console.log(
               "SHOW POP UP SCREEN FOR PLAYER: " + player + " WITH ID: " + id
             );
+            console.log('RENDER')
+            root.render(pop_ip_ui(player))
             break;
 
           case `${TOPIC}/winner`:
@@ -92,25 +98,49 @@ function MQTTComponent() {
       <div style={{height: '400px', overflowY: 'scroll',}}>
         {list}
       </div>
-      <button onClick={() => {new_game(); setGame(true)}}>Lancer le Quizzoeur !</button>
+      <button onClick={() => {
+        new_game();
+        setGame(true)
+      }}>Lancer le Quizzoeur !
+      </button>
     </div>)
-  }
-  else{
+  } else {
     return <div></div>
   }
 }
 
-  function new_game(){
-      client.publish(`${TOPIC}/newGame`, 'new Game')
-  }
+function pop_ip_ui(playerName) {
+  return (<div className="flou">
+    <div style={{
+      width: "390px",
+      height: "308px",
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      background: "#000000",
+      borderRadius: "20px",
+      justifyContent: 'space-around',
+    }}>
+      <div className="playerName"><p>{playerName} a buzzé</p></div>
+      <div style={{width: '90%', display: 'flex', justifyContent: 'space-between'}}>
+        <div className="wrong"></div>
+        <div className="right"></div>
+      </div>
+    </div>
+  </div>)
+}
 
-  function goodAnswer(id){
-    client.publish(`${TOPIC}/GoodAnswer`, id)
-  }
+function new_game() {
+  client.publish(`${TOPIC}/newGame`, 'new Game')
+}
 
-  function pass(){
-      client.publish(`${TOPIC}/pass`, 'PASS')
-  }
+function goodAnswer(id) {
+  client.publish(`${TOPIC}/GoodAnswer`, id)
+}
+
+function pass() {
+  client.publish(`${TOPIC}/pass`, 'PASS')
+}
 
 export default MQTTComponent;
 
