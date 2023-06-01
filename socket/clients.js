@@ -2,10 +2,9 @@ const clients = require('mqtt')
 const client = clients.connect('mqtt://test.mosquitto.org')
 require('dotenv').config()
 const TOPIC = process.env.TOPIC;
-import {playersList} from './server'
 
 // SERVER
-function initMqtt() {
+function initMqtt(getVariable, setVariable) {
   client.on('connect', function () {
   client.subscribe(TOPIC, function (err) {
     if(!err){
@@ -15,8 +14,7 @@ function initMqtt() {
 })
 
 client.on('message', function (topic, message) {
-  // message is Buffer
-  console.log(topic, message.toString())
+  let playersList = getVariable()
 
   // Switch
   switch (message.toString()){
@@ -27,16 +25,18 @@ client.on('message', function (topic, message) {
 
     // Good Answer
     case `${TOPIC}/GoodAnswer`:
-      // TEST IF IT AFFECT THE OG ARRAY
       const found = playersList.find(player => player.color === message)
       if(found !== undefined){
         found.addScore();
+        setVariable(playersList)
       }
       break;
 
       // Pass the question
       case `${TOPIC}/pass`:
-      // reset the hasAlreadyAnswered
+      playersList.forEach(player => player.hasAlreadyAnswer = false);
+      setVariable(playersList)
+      // Turn Off D0
       break;
   }
 })

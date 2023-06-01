@@ -4,7 +4,7 @@ const functions = require("./clients");
 var C = xbee_api.constants;
 //var storage = require("./storage")
 require('dotenv').config()
-functions.initMqtt()
+functions.initMqtt(getVariable, setVariable)
 
 class Player {
 
@@ -36,16 +36,12 @@ class Player {
 
         xbeeAPI.builder.write(frame_obj);
       }
-
-
-
     }
   }
 
 }
-
 const SERIAL_PORT = process.env.SERIAL_PORT;
-const playersList = []
+let playersList = []
 var xbeeAPI = new xbee_api.XBeeAPI({
   api_mode: 2
 });
@@ -159,4 +155,10 @@ xbeeAPI.parser.on("data", function (frame) {
 
 });
 
-export { playersList }
+function getVariable(){
+  return playersList
+}
+
+function setVariable(variable){
+  playersList = variable
+}
