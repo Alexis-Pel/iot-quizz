@@ -55,11 +55,9 @@ function MQTTComponent() {
                   <div className="ColorPlayer">{message.toString()}</div>
                 </div>
               </li>
-              console.log(list)
 
               const found = listNames.filter(value => value === message.toString())
               if (found.length === 0) {
-                console.log(`${message.toString()} joined`);
                 listNames.push(message.toString())
                 list.push(b)
                 setList([...list])
@@ -120,8 +118,14 @@ function lobby(list, setGame) {
   </div>)
 }
 
-function game_page(index) {
-  return (questions(questions_json[`${index}`], client))
+function game_page(index, setGame) {
+    let question = questions_json[`${index}`]
+  if(question !== undefined){
+      return (questions(question))
+  }
+  else{
+    return <div><h1 className="noQ">Egalité</h1><button className='next' onClick={()=>{window.location.reload()}}>Menu</button></div>
+  }
 }
 
 function pop_ip_ui(playerName, id) {

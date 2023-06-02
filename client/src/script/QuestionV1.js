@@ -6,7 +6,7 @@ function questions(question, client) {
     <div className="App">
       <h1>Quizzoeur</h1>
       <div>
-      <div className='Question'>
+      <div className='Bleu'>
           <div className='IconPlayerBleu'>
             Q
           </div>
@@ -14,7 +14,7 @@ function questions(question, client) {
             {question.question}
           </div>
      </div>
-     <div className='response'>
+     <div className='Vert mt-5'>
           <div className='IconPlayerVert'>
             P
           </div>
@@ -31,3 +31,5 @@ function questions(question, client) {
 }
 
 export default questions;
+
+
