@@ -1,6 +1,7 @@
 import '../css/App.css';
+import {pass} from './client'
 
-function App() {
+function questions(question, client) {
   return (
     <div className="App">
       <h1>Quizzoeur</h1>
@@ -10,23 +11,23 @@ function App() {
             Q
           </div>
           <div className='text-question'>
-            Combien de seconde y-a-t'il dans une heure ?
+            {question.question}
           </div>
-     </div> 
+     </div>
      <div className='response'>
           <div className='IconPlayerVert'>
             P
           </div>
           <div className='text-response'>
-            Il y a 3600 secondes dans une heure.
+            {question.answer}
           </div>
         </div>
       </div>
-      <button className='next'>Suivante !</button>
+      <button className='next' onClick={()=>{pass()}}>Suivante !</button>
     </div>
 
 
   );
 }
 
-export default App; 
+export default questions;

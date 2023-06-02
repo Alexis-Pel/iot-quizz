@@ -3,6 +3,9 @@ import React, {Component, useEffect} from "react";
 import {useState} from "react";
 import mqtt from "precompiled-mqtt";
 import {createRoot, render} from "react-dom";
+import questions from "./QuestionV1";
+import getQuestions from './questions'
+
 //dotenv.config();
 const TOPIC = "3c063038e425";
 const client = mqtt.connect("mqtt://test.mosquitto.org:8080");
@@ -21,10 +24,13 @@ client.on("error", (error) => {
 });
 
 let listNames = []
+const questions_json = getQuestions()
 let message_cache = null
 const root = createRoot(
   document.getElementById('root')
 );
+
+  let index = 1
 
 function MQTTComponent() {
   let [list, setList] = useState([])
@@ -95,7 +101,7 @@ function MQTTComponent() {
   if (game === false) {
     return lobby(list, setGame)
   } else {
-    return game_page()
+    return game_page(index)
   }
 }
 
@@ -114,8 +120,8 @@ function lobby(list, setGame) {
   </div>)
 }
 
-function game_page() {
-  return (<div></div>)
+function game_page(index) {
+  return (questions(questions_json[`${index}`], client))
 }
 
 function pop_ip_ui(playerName, id) {
@@ -133,7 +139,7 @@ function pop_ip_ui(playerName, id) {
       <div className="playerName"><p>{playerName} a buzzé</p></div>
       <div style={{width: '90%', display: 'flex', justifyContent: 'space-between'}}>
         <div className="wrong" onClick={() => {
-          root.render(game_page())
+          root.render(game_page(index))
         }}>
           <div>
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -147,7 +153,8 @@ function pop_ip_ui(playerName, id) {
         </div>
         <div className="right" onClick={() => {
           goodAnswer(id)
-          root.render(game_page())
+          index += 1
+          root.render(game_page(index))
         }}>
           <div>
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -171,8 +178,10 @@ function goodAnswer(id) {
   client.publish(`${TOPIC}/GoodAnswer`, id)
 }
 
-function pass() {
+export function pass() {
   client.publish(`${TOPIC}/pass`, 'PASS')
+  index += 1
+  root.render(game_page(index))
 }
 
 export default MQTTComponent;
