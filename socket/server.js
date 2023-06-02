@@ -33,6 +33,9 @@ class Player {
           command: diode,
           commandParameter: [5],
         };
+        if(this.score === 3){
+          functions.send_winner(this.color);
+        }
 
         xbeeAPI.builder.write(frame_obj);
       }
