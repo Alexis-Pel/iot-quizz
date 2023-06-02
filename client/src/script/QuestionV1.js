@@ -1,11 +1,11 @@
 import '../css/App.css';
 
-function App() {
+function QuestionV1() {
   return (
     <div className="App">
       <h1>Quizzoeur</h1>
       <div>
-      <div className='Question'>
+      <div className='Bleu'>
           <div className='IconPlayerBleu'>
             Q
           </div>
@@ -13,9 +13,9 @@ function App() {
             Combien de seconde y-a-t'il dans une heure ?
           </div>
      </div> 
-     <div className='response'>
+     <div className='Vert mt-5'>
           <div className='IconPlayerVert'>
-            P
+            ✓
           </div>
           <div className='text-response'>
             Il y a 3600 secondes dans une heure.
@@ -29,4 +29,4 @@ function App() {
   );
 }
 
-export default App; 
+export default QuestionV1; 
