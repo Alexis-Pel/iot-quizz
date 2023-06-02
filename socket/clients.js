@@ -5,9 +5,9 @@ require('dotenv').config()
 const TOPIC = process.env.TOPIC;
 
 // SERVER
-function initMqtt(getVariable, setVariable) {
+function initMqtt(getVariable, setVariable,funcNewGame,turnOfAllD0) {
   client.on('connect', function () {
-  client.subscribe(TOPIC, function (err) {
+  client.subscribe(TOPIC+"/+", function (err) {
     if(!err){
       client.publish(TOPIC, 'Hello mqtt')
     }
@@ -16,12 +16,12 @@ function initMqtt(getVariable, setVariable) {
 
 client.on('message', function (topic, message) {
   let playersList = getVariable()
-
+  
   // Switch
   switch (topic){
     // New game
     case `${TOPIC}/NewGame`:
-      // START A NEW GAME
+      funcNewGame()
       break;
 
     // Good Answer
@@ -30,6 +30,7 @@ client.on('message', function (topic, message) {
       if(found !== undefined){
         found.addScore();
         setVariable(playersList)
+        turnOfAllD0()
       }
       break;
 
@@ -37,8 +38,9 @@ client.on('message', function (topic, message) {
       case `${TOPIC}/pass`:
       playersList.forEach(player => player.hasAlreadyAnswer = false);
       setVariable(playersList)
-      // Turn Off D0
+      turnOfAllD0()
       break;
+      
   }
 })
 }
@@ -47,6 +49,7 @@ function send_winner(winner){
     client.publish(`${TOPIC}/winner`, winner)
 }
 function pop_up(player, id){
+  
   client.publish(`${TOPIC}/pop_up`, `${player}|${id}`)
 }
 

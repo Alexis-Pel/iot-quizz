@@ -4,13 +4,16 @@ const functions = require("./clients");
 var C = xbee_api.constants;
 //var storage = require("./storage")
 require('dotenv').config()
-functions.initMqtt(getVariable, setVariable)
+functions.initMqtt(getVariable, setVariable,resetAll,turnOfAllD0)
 
+
+
+let playersWhoBuzzed = []
 class Player {
 
   remote64;
   hasAlreadyAnswer = false
-  score = 1;
+  score = 0;
   color;
 
   constructor(remote64,color){
@@ -20,13 +23,10 @@ class Player {
 
   addScore(){
     let diode = ""
-    if(this.score === 2){
-      //finish
-    }else {
+    
       this.score++
       for(let i = 1; i<= this.score;i++){
         diode = `D${i}`
-        console.log(diode)
         let frame_obj = { // AT Request to be sent
           type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
           destination64: this.remote64,
@@ -36,7 +36,7 @@ class Player {
 
         xbeeAPI.builder.write(frame_obj);
       }
-    }
+    
   }
 
 }
@@ -58,6 +58,7 @@ serialport.pipe(xbeeAPI.parser);
 xbeeAPI.builder.pipe(serialport);
 
 serialport.on("open", function () {
+  resetAll();
   var frame_obj = { // AT Request to be sent
     type: C.FRAME_TYPE.AT_COMMAND,
     command: "NI",
@@ -96,64 +97,71 @@ xbeeAPI.parser.on("data", function (frame) {
 
   if (C.FRAME_TYPE.NODE_IDENTIFICATION === frame.type) {
     // let dataReceived = String.fromCharCode.apply(null, frame.nodeIdentifier);
-
+    
     let newPlayer = new Player(frame.remote64,frame.nodeIdentifier)
     playersList.push(newPlayer);
     console.log("NODE_IDENTIFICATION");
-    console.log(playersList);
+    functions.player_join(frame.nodeIdentifier);
     //playersList[0].addScore();
     //storage.registerSensor(frame.remote64)
 
   } else if (C.FRAME_TYPE.ZIGBEE_IO_DATA_SAMPLE_RX === frame.type) {
-
     console.log("ZIGBEE_IO_DATA_SAMPLE_RX")
-    console.log(frame.remote64)
-
-  frame_obj = { // AT Request to be sent
-      type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
-      destination64: frame.remote64,
-      command: "D0",
-      commandParameter: [5],
-    };
-    xbeeAPI.builder.write(frame_obj);
-
-
-
-
-    // let parameter;
-    // if(ledOn === true){
-    //   parameter = "4";
-    // }
-    // else{
-    //   parameter = "5";
-    // }
-    // ledOn = !ledOn;
-
-    // Action sur la led
-  //  var frame_obj = { // AT Request to be sent
-  //    type: C.FRAME_TYPE.AT_COMMAND,
-  //    command: "D0",
-  //    commandParameter: [parameter],
-  //};
-
-
-  //xbeeAPI.builder.write(frame_obj);
-
-    //storage.registerSample(frame.remote64,frame.analogSamples.AD0 )
+      
+      //console.log( typeof playersList[0].remote64)
+      if(frame.digitalSamples.DIO4 === 0){
+        
+        let playerWhoBuzzed = playersList.filter((player)=>
+        player.remote64 === frame.remote64
+      )
+      if(!playerWhoBuzzed[0].hasAlreadyAnswer){
+        playersWhoBuzzed.push(playerWhoBuzzed[0]);
+      }
+      if(playersWhoBuzzed[0]){
+        frame_obj = { // AT Request to be sent
+          type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
+          destination64: playersWhoBuzzed[0].remote64,
+          command: "D0",
+          commandParameter: [5],
+        };
+        xbeeAPI.builder.write(frame_obj);
+        playersWhoBuzzed[0].hasAlreadyAnswer = true;
+        functions.pop_up(playersWhoBuzzed[0].color, playersWhoBuzzed[0].remote64)
+        playersWhoBuzzed = [];
+      }
+    }
 
   } else if (C.FRAME_TYPE.REMOTE_COMMAND_RESPONSE === frame.type) {
     let dataReceived = String.fromCharCode.apply(null, frame.commandData)
-
-    console.log("REMOTE_COMMAND_RESPONSE", dataReceived)
+    if(frame.command === "NI"){
+      let newPlayer = new Player(frame.remote64,dataReceived)
+      playersList.push(newPlayer);
+      functions.player_join(newPlayer.color)
+    }
+   
+    
+    console.log("REMOTE_COMMAND_RESPONSE", dataReceived);
   } else {
 
     console.debug(frame);
 
     let dataReceived = String.fromCharCode.apply(null, frame.commandData)
-    console.log(dataReceived);
+    
   }
 
 });
+
+function turnOfAllD0(){
+  console.log("ui")
+  frame_obj = { // AT Request to be sent
+    type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
+    destination64: 'FFFFFFFFFFFFFFFF',
+    command: "D0",
+    commandParameter: [4],
+  };
+  xbeeAPI.builder.write(frame_obj);
+  newQuestion();
+}
 
 function getVariable(){
   return playersList
@@ -161,4 +169,55 @@ function getVariable(){
 
 function setVariable(variable){
   playersList = variable
+}
+
+function goodAnswer(player){
+  console.log(player)
+  player.addScore();
+}
+
+function newQuestion(){
+  
+  for(let i = 0; i <= playersList.length-1; i++){
+    playersList[i].hasAlreadyAnswer = false;
+  }
+}
+
+function resetAll(){
+  frame_obj = { // AT Request to be sent
+    type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
+    destination64: 'FFFFFFFFFFFFFFFF',
+    command: "D0",
+    commandParameter: [4],
+  };
+  xbeeAPI.builder.write(frame_obj);
+
+  frame_obj = { // AT Request to be sent
+    type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
+    destination64: 'FFFFFFFFFFFFFFFF',
+    command: "D1",
+    commandParameter: [4],
+  };
+  xbeeAPI.builder.write(frame_obj);
+
+  frame_obj = { // AT Request to be sent
+    type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
+    destination64: 'FFFFFFFFFFFFFFFF',
+    command: "D2",
+    commandParameter: [4],
+  };
+  xbeeAPI.builder.write(frame_obj);
+
+  frame_obj = { // AT Request to be sent
+    type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
+    destination64: 'FFFFFFFFFFFFFFFF',
+    command: "D3",
+    commandParameter: [4],
+  };
+  xbeeAPI.builder.write(frame_obj);
+
+  for(let i = 0; i <= playersList.length-1; i++){
+    playersList[i].Score = 0;
+  }
+  
 }
