@@ -98,22 +98,23 @@ function MQTTComponent() {
     return game_page()
   }
 }
-function lobby(list, setGame){
+
+function lobby(list, setGame) {
   return (<div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-      <h1>Quizzoeur</h1>
-      <div style={{height: '400px', overflowY: 'scroll',}}>
-        {list}
-      </div>
-      <button onClick={() => {
-        new_game();
-        setGame(true)
-      }}>Lancer le Quizzoeur !
-      </button>
-      <div id="test"></div>
-    </div>)
+    <h1>Quizzoeur</h1>
+    <div style={{height: '400px', overflowY: 'scroll',}}>
+      {list}
+    </div>
+    <button onClick={() => {
+      new_game();
+      setGame(true)
+    }}>Lancer le Quizzoeur !
+    </button>
+    <div id="test"></div>
+  </div>)
 }
 
-function game_page(){
+function game_page() {
   return (<div></div>)
 }
 
@@ -131,11 +132,32 @@ function pop_ip_ui(playerName, id) {
     }}>
       <div className="playerName"><p>{playerName} a buzzé</p></div>
       <div style={{width: '90%', display: 'flex', justifyContent: 'space-between'}}>
-        <div className="wrong" onClick={() => {root.render(game_page())}}><p>Incorrect</p></div>
+        <div className="wrong" onClick={() => {
+          root.render(game_page())
+        }}>
+          <div>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="7" fill="white"/>
+              <path
+                d="M25.3334 8.54663L23.4534 6.66663L16 14.12L8.54669 6.66663L6.66669 8.54663L14.12 16L6.66669 23.4533L8.54669 25.3333L16 17.88L23.4534 25.3333L25.3334 23.4533L17.88 16L25.3334 8.54663Z"
+                fill="#CA1301"/>
+            </svg>
+          </div>
+          <div id='incorrect_text'><p>Incorrect</p></div>
+        </div>
         <div className="right" onClick={() => {
           goodAnswer(id)
           root.render(game_page())
-        }}><p>Correct</p></div>
+        }}>
+          <div>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="9" fill="white"/>
+              <path d="M12 21.56L6.43996 16L4.54663 17.88L12 25.3334L28 9.33337L26.12 7.45337L12 21.56Z"
+                    fill="#43C901"/>
+            </svg>
+          </div>
+          <div id="correct_text"><p>Correct</p></div>
+        </div>
       </div>
     </div>
   </div>)
