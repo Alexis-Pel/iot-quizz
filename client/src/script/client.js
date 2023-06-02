@@ -13,7 +13,7 @@ const client = mqtt.connect("mqtt://test.mosquitto.org:8080");
 client.on("connect", () => {
   // Souscrire à des sujets MQTT
   client.subscribe(`${TOPIC}/+`);
-  client.publish(`${TOPIC}/pop_up`, 'VERT|aa');
+  //client.publish(`${TOPIC}/pop_up`, 'VERT|aa');
 });
 
 client.on("error", (error) => {
