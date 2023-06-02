@@ -8,7 +8,6 @@
 
 .App {
   text-align: center;
-  background-color: black;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -283,7 +282,6 @@ border-radius: 18px;
 
 .App {
   text-align: center;
-  background-color: black;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -396,4 +394,41 @@ button {
     position: absolute;
     top: 25%;
     width: 100%;
+}
+
+.winner {
+width: 380px;
+height: 177px;
+
+background: linear-gradient(91.43deg, #DB00FF 0%, #00E0FF 100%);
+border: 3px solid #FFFFFF;
+border-radius: 20px;
+    display: flex;
+        align-items: center;
+    justify-content: center;
+}
+
+#winner_name{
+font-weight: 600;
+}
+
+.winner p {
+    justify-content: center;
+    width: 300px;
+height: 150px;
+
+/* AOSP/Headline/Small */
+
+font-family: 'Roboto';
+font-style: normal;
+font-weight: 400;
+font-size: 24px;
+line-height: 32px;
+/* or 133% */
+flex-direction: column;
+display: flex;
+align-items: center;
+text-align: center;
+
+color: #FFFFFF;
 }

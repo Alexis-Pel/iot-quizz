@@ -5,7 +5,7 @@ import mqtt from "precompiled-mqtt";
 import {createRoot, render} from "react-dom";
 import questions from "./QuestionV1";
 import getQuestions from './questions'
-
+import End from "./end";
 //dotenv.config();
 const TOPIC = "3c063038e425";
 const client = mqtt.connect("mqtt://test.mosquitto.org:8080");
@@ -77,7 +77,7 @@ function MQTTComponent() {
             break;
 
           case `${TOPIC}/winner`:
-            console.log("WINNER IS PLAYER: " + message.toString());
+            root.render(End(message.toString()))
             break;
 
           default:
